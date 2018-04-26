@@ -5,9 +5,9 @@
 # set configuration parameters
 get_config: R(args)
    mae: data/GSE48968-GPL13112.rds
-   subfile: subsets/GSE48968-GPL13112_subsets.rds
-   resfilebase: results/GSE48968-GPL13112
-   figfilebase: figures/diffexpression/GSE48968-GPL13112
+#   subfile: subsets/GSE48968-GPL13112_subsets.rds
+#   resfilebase: results/GSE48968-GPL13112
+#   figfilebase: figures/diffexpression/GSE48968-GPL13112
    groupid: source_name_ch1
    keepgroups: (BMDC (1h LPS Stimulation), BMDC (4h LPS Stimulation))
    seed: 42 # not necessary in DSC
@@ -20,7 +20,6 @@ get_config: R(args)
 # import data
 get_data: R(data_raw = readRDS(args$mae))
   args: $config
-#  data_file: data/GSE48968-GPL13112.rds
   $data_raw: data_raw
 
 # clean data
