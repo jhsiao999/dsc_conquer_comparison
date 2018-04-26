@@ -1,5 +1,0 @@
-R_library MultiAssayExperiment
-R_library iCOBRA
-R_library rjson
-R_library SummarizedExperiment
-R_library dscrutils@stephenslab/dsc/dscrutils (0.2.7.2+)
