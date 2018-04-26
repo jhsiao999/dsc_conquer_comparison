@@ -1,0 +1,14 @@
+cafc7706cee4572b
+# input
+# output
+example/get_nsig/get_config_1_get_data_1_make_data_clean_1_make_data_subset_indices_1_make_data_subset_1_apply_wilcoxon_1_get_nsig_1.rds	36e913d84cff0c4c
+example/get_nsig/get_config_1_get_data_1_make_data_clean_1_make_data_subset_indices_1_make_data_subset_1_apply_ttest_1_get_nsig_1.rds	993afc659c0ba2ba
+# dependent
+sos_step("a_get_nsig")	beed543aa30c91b7
+sos_step("b_get_nsig")	f3e44398b7047049
+# init context
+# end context
+# step process
+
+# step process
+

@@ -1,0 +1,97 @@
+dcf102d31592f2b8
+# input
+example/make_data_subset/get_config_2_get_data_2_make_data_clean_2_make_data_subset_indices_2_make_data_subset_2.rds	6674e4d7d7569536
+# output
+example/apply_ttest/get_config_2_get_data_2_make_data_clean_2_make_data_subset_indices_2_make_data_subset_2_apply_ttest_2.rds	2bc93ba70cc78f1a
+# dependent
+# init context
+DSC_STEP_ID_=5901230
+_input:=b'gANjc29zLnRhcmdldHMKc29zX3RhcmdldHMKcQApgXEBXXECY3Nvcy50YXJnZXRzCmZpbGVfdGFyZ2V0CnEDWAcAAABleGFtcGxlcQRYEAAAAG1ha2VfZGF0YV9zdWJzZXRxBVhbAAAAZ2V0X2NvbmZpZ18yX2dldF9kYXRhXzJfbWFrZV9kYXRhX2NsZWFuXzJfbWFrZV9kYXRhX3N1YnNldF9pbmRpY2VzXzJfbWFrZV9kYXRhX3N1YnNldF8yLnJkc3EGh3EHUnEIYWIu'
+_output:=b'gANjc29zLnRhcmdldHMKc29zX3RhcmdldHMKcQApgXEBXXECY3Nvcy50YXJnZXRzCmZpbGVfdGFyZ2V0CnEDWAcAAABleGFtcGxlcQRYCwAAAGFwcGx5X3R0ZXN0cQVYaQAAAGdldF9jb25maWdfMl9nZXRfZGF0YV8yX21ha2VfZGF0YV9jbGVhbl8yX21ha2VfZGF0YV9zdWJzZXRfaW5kaWNlc18yX21ha2VfZGF0YV9zdWJzZXRfMl9hcHBseV90dGVzdF8yLnJkc3EGh3EHUnEIYWIu'
+# end context
+DSC_STEP_ID_=5901230
+_input:=b'gANjc29zLnRhcmdldHMKc29zX3RhcmdldHMKcQApgXEBXXECY3Nvcy50YXJnZXRzCmZpbGVfdGFyZ2V0CnEDWAcAAABleGFtcGxlcQRYEAAAAG1ha2VfZGF0YV9zdWJzZXRxBVhbAAAAZ2V0X2NvbmZpZ18yX2dldF9kYXRhXzJfbWFrZV9kYXRhX2NsZWFuXzJfbWFrZV9kYXRhX3N1YnNldF9pbmRpY2VzXzJfbWFrZV9kYXRhX3N1YnNldF8yLnJkc3EGh3EHUnEIYWIu'
+_output:=b'gANjc29zLnRhcmdldHMKc29zX3RhcmdldHMKcQApgXEBXXECY3Nvcy50YXJnZXRzCmZpbGVfdGFyZ2V0CnEDWAcAAABleGFtcGxlcQRYCwAAAGFwcGx5X3R0ZXN0cQVYaQAAAGdldF9jb25maWdfMl9nZXRfZGF0YV8yX21ha2VfZGF0YV9jbGVhbl8yX21ha2VfZGF0YV9zdWJzZXRfaW5kaWNlc18yX21ha2VfZGF0YV9zdWJzZXRfMl9hcHBseV90dGVzdF8yLnJkc3EGh3EHUnEIYWIu'
+# step process
+DSC_STEP_ID_ = 5901230
+
+R ( fr"""## r script UUID: {DSC_STEP_ID_}
+suppressPackageStartupMessages(library(edgeR))
+dscrutils:::empty_text(c("{_output:n}.stdout", "{_output:n}.stderr"))
+DSC_5C6ECB02 <- readRDS("{_input}")
+DSC_REPLICATE <- DSC_5C6ECB02$DSC_DEBUG$replicate
+data_subset <- DSC_5C6ECB02$data_subset
+TIC_5C6ECB02 <- proc.time()
+set.seed(DSC_REPLICATE + {DSC_STEP_ID_})
+
+## BEGIN DSC CORE
+suppressPackageStartupMessages(library(genefilter))
+run_ttest <- function(L) {{
+  message("t-test")
+  session_info <- sessionInfo()
+  timing <- system.time({{
+    tmm <- edgeR::calcNormFactors(L$tpm)
+    tpmtmm <- edgeR::cpm(L$tpm, lib.size = tmm * colSums(L$tpm))
+    logtpm <- log2(tpmtmm + 1)
+    idx <- seq_len(nrow(logtpm))
+    names(idx) <- rownames(logtpm)
+    ttest_p <- sapply(idx, function(i) {{
+      t.test(logtpm[i, ] ~ L$condt)$p.value
+    }})
+  }})
+  hist(ttest_p, 50)
+  list(session_info = session_info,
+       timing = timing,
+       df = data.frame(pval = ttest_p,
+                       row.names = names(ttest_p)))
+}}
+output <- run_ttest(data_subset)
+## END DSC CORE
+
+saveRDS(list(pval=output$df$pval, timing=output$df$timing, DSC_DEBUG=list(time=as.list(proc.time() - TIC_5C6ECB02), script=dscrutils:::load_script(), replicate=DSC_REPLICATE, session=toString(sessionInfo()))), {_output:r})
+dscrutils:::rm_if_empty(c("{_output:n}.stdout", "{_output:n}.stderr"))
+
+
+""" , workdir = './' , stderr = f"{_output:n}.stderr" , stdout = f"{_output:n}.stdout" ) 
+ # step process
+DSC_STEP_ID_ = 5901230
+
+R ( fr"""## r script UUID: {DSC_STEP_ID_}
+suppressPackageStartupMessages(library(edgeR))
+dscrutils:::empty_text(c("{_output:n}.stdout", "{_output:n}.stderr"))
+DSC_5C6ECB02 <- readRDS("{_input}")
+DSC_REPLICATE <- DSC_5C6ECB02$DSC_DEBUG$replicate
+data_subset <- DSC_5C6ECB02$data_subset
+TIC_5C6ECB02 <- proc.time()
+set.seed(DSC_REPLICATE + {DSC_STEP_ID_})
+
+## BEGIN DSC CORE
+suppressPackageStartupMessages(library(genefilter))
+run_ttest <- function(L) {{
+  message("t-test")
+  session_info <- sessionInfo()
+  timing <- system.time({{
+    tmm <- edgeR::calcNormFactors(L$tpm)
+    tpmtmm <- edgeR::cpm(L$tpm, lib.size = tmm * colSums(L$tpm))
+    logtpm <- log2(tpmtmm + 1)
+    idx <- seq_len(nrow(logtpm))
+    names(idx) <- rownames(logtpm)
+    ttest_p <- sapply(idx, function(i) {{
+      t.test(logtpm[i, ] ~ L$condt)$p.value
+    }})
+  }})
+  hist(ttest_p, 50)
+  list(session_info = session_info,
+       timing = timing,
+       df = data.frame(pval = ttest_p,
+                       row.names = names(ttest_p)))
+}}
+output <- run_ttest(data_subset)
+## END DSC CORE
+
+saveRDS(list(pval=output$df$pval, timing=output$df$timing, DSC_DEBUG=list(time=as.list(proc.time() - TIC_5C6ECB02), script=dscrutils:::load_script(), replicate=DSC_REPLICATE, session=toString(sessionInfo()))), {_output:r})
+dscrutils:::rm_if_empty(c("{_output:n}.stdout", "{_output:n}.stderr"))
+
+
+""" , workdir = './' , stderr = f"{_output:n}.stderr" , stdout = f"{_output:n}.stdout" ) 
+ 

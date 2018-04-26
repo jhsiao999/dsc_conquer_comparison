@@ -1,0 +1,57 @@
+893543c05aefd760
+# input
+example/get_config/get_config_1.rds	718d4ec634fe21f7
+# output
+example/get_data/get_config_1_get_data_1.rds	ba95e08b55cd47a2
+# dependent
+# init context
+DSC_STEP_ID_=59761577
+_input:=b'gANjc29zLnRhcmdldHMKc29zX3RhcmdldHMKcQApgXEBXXECY3Nvcy50YXJnZXRzCmZpbGVfdGFyZ2V0CnEDWAcAAABleGFtcGxlcQRYCgAAAGdldF9jb25maWdxBVgQAAAAZ2V0X2NvbmZpZ18xLnJkc3EGh3EHUnEIYWIu'
+_output:=b'gANjc29zLnRhcmdldHMKc29zX3RhcmdldHMKcQApgXEBXXECY3Nvcy50YXJnZXRzCmZpbGVfdGFyZ2V0CnEDWAcAAABleGFtcGxlcQRYCAAAAGdldF9kYXRhcQVYGwAAAGdldF9jb25maWdfMV9nZXRfZGF0YV8xLnJkc3EGh3EHUnEIYWIu'
+# end context
+DSC_STEP_ID_=59761577
+_input:=b'gANjc29zLnRhcmdldHMKc29zX3RhcmdldHMKcQApgXEBXXECY3Nvcy50YXJnZXRzCmZpbGVfdGFyZ2V0CnEDWAcAAABleGFtcGxlcQRYCgAAAGdldF9jb25maWdxBVgQAAAAZ2V0X2NvbmZpZ18xLnJkc3EGh3EHUnEIYWIu'
+_output:=b'gANjc29zLnRhcmdldHMKc29zX3RhcmdldHMKcQApgXEBXXECY3Nvcy50YXJnZXRzCmZpbGVfdGFyZ2V0CnEDWAcAAABleGFtcGxlcQRYCAAAAGdldF9kYXRhcQVYGwAAAGdldF9jb25maWdfMV9nZXRfZGF0YV8xLnJkc3EGh3EHUnEIYWIu'
+# step process
+DSC_STEP_ID_ = 59761577
+
+R ( fr"""## r script UUID: {DSC_STEP_ID_}
+
+dscrutils:::empty_text(c("{_output:n}.stdout", "{_output:n}.stderr"))
+DSC_DBC9E3C4 <- readRDS("{_input}")
+DSC_REPLICATE <- DSC_DBC9E3C4$DSC_DEBUG$replicate
+args <- DSC_DBC9E3C4$config
+TIC_DBC9E3C4 <- proc.time()
+set.seed(DSC_REPLICATE + {DSC_STEP_ID_})
+
+## BEGIN DSC CORE
+data_raw = readRDS(args$mae)
+## END DSC CORE
+
+saveRDS(list(data_raw=data_raw, DSC_DEBUG=list(time=as.list(proc.time() - TIC_DBC9E3C4), script=dscrutils:::load_script(), replicate=DSC_REPLICATE, session=toString(sessionInfo()))), {_output:r})
+dscrutils:::rm_if_empty(c("{_output:n}.stdout", "{_output:n}.stderr"))
+
+
+""" , workdir = './' , stderr = f"{_output:n}.stderr" , stdout = f"{_output:n}.stdout" ) 
+ # step process
+DSC_STEP_ID_ = 59761577
+
+R ( fr"""## r script UUID: {DSC_STEP_ID_}
+
+dscrutils:::empty_text(c("{_output:n}.stdout", "{_output:n}.stderr"))
+DSC_DBC9E3C4 <- readRDS("{_input}")
+DSC_REPLICATE <- DSC_DBC9E3C4$DSC_DEBUG$replicate
+args <- DSC_DBC9E3C4$config
+TIC_DBC9E3C4 <- proc.time()
+set.seed(DSC_REPLICATE + {DSC_STEP_ID_})
+
+## BEGIN DSC CORE
+data_raw = readRDS(args$mae)
+## END DSC CORE
+
+saveRDS(list(data_raw=data_raw, DSC_DEBUG=list(time=as.list(proc.time() - TIC_DBC9E3C4), script=dscrutils:::load_script(), replicate=DSC_REPLICATE, session=toString(sessionInfo()))), {_output:r})
+dscrutils:::rm_if_empty(c("{_output:n}.stdout", "{_output:n}.stderr"))
+
+
+""" , workdir = './' , stderr = f"{_output:n}.stderr" , stdout = f"{_output:n}.stdout" ) 
+ 

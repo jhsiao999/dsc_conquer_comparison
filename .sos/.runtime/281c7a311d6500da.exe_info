@@ -1,0 +1,107 @@
+076dab74b2927e1d
+# input
+example/make_data_subset/get_config_1_get_data_1_make_data_clean_1_make_data_subset_indices_1_make_data_subset_1.rds	a6ac008940365087
+# output
+example/apply_limmatrend/get_config_1_get_data_1_make_data_clean_1_make_data_subset_indices_1_make_data_subset_1_apply_limmatrend_1.rds	1ea0e266d191af0b
+# dependent
+# init context
+DSC_STEP_ID_=67083057
+_input:=b'gANjc29zLnRhcmdldHMKc29zX3RhcmdldHMKcQApgXEBXXECY3Nvcy50YXJnZXRzCmZpbGVfdGFyZ2V0CnEDWAcAAABleGFtcGxlcQRYEAAAAG1ha2VfZGF0YV9zdWJzZXRxBVhbAAAAZ2V0X2NvbmZpZ18xX2dldF9kYXRhXzFfbWFrZV9kYXRhX2NsZWFuXzFfbWFrZV9kYXRhX3N1YnNldF9pbmRpY2VzXzFfbWFrZV9kYXRhX3N1YnNldF8xLnJkc3EGh3EHUnEIYWIu'
+_output:=b'gANjc29zLnRhcmdldHMKc29zX3RhcmdldHMKcQApgXEBXXECY3Nvcy50YXJnZXRzCmZpbGVfdGFyZ2V0CnEDWAcAAABleGFtcGxlcQRYEAAAAGFwcGx5X2xpbW1hdHJlbmRxBVhuAAAAZ2V0X2NvbmZpZ18xX2dldF9kYXRhXzFfbWFrZV9kYXRhX2NsZWFuXzFfbWFrZV9kYXRhX3N1YnNldF9pbmRpY2VzXzFfbWFrZV9kYXRhX3N1YnNldF8xX2FwcGx5X2xpbW1hdHJlbmRfMS5yZHNxBodxB1JxCGFiLg=='
+# end context
+DSC_STEP_ID_=67083057
+_input:=b'gANjc29zLnRhcmdldHMKc29zX3RhcmdldHMKcQApgXEBXXECY3Nvcy50YXJnZXRzCmZpbGVfdGFyZ2V0CnEDWAcAAABleGFtcGxlcQRYEAAAAG1ha2VfZGF0YV9zdWJzZXRxBVhbAAAAZ2V0X2NvbmZpZ18xX2dldF9kYXRhXzFfbWFrZV9kYXRhX2NsZWFuXzFfbWFrZV9kYXRhX3N1YnNldF9pbmRpY2VzXzFfbWFrZV9kYXRhX3N1YnNldF8xLnJkc3EGh3EHUnEIYWIu'
+_output:=b'gANjc29zLnRhcmdldHMKc29zX3RhcmdldHMKcQApgXEBXXECY3Nvcy50YXJnZXRzCmZpbGVfdGFyZ2V0CnEDWAcAAABleGFtcGxlcQRYEAAAAGFwcGx5X2xpbW1hdHJlbmRxBVhuAAAAZ2V0X2NvbmZpZ18xX2dldF9kYXRhXzFfbWFrZV9kYXRhX2NsZWFuXzFfbWFrZV9kYXRhX3N1YnNldF9pbmRpY2VzXzFfbWFrZV9kYXRhX3N1YnNldF8xX2FwcGx5X2xpbW1hdHJlbmRfMS5yZHNxBodxB1JxCGFiLg=='
+# step process
+DSC_STEP_ID_ = 67083057
+
+R ( fr"""## r script UUID: {DSC_STEP_ID_}
+suppressPackageStartupMessages(library(limma))
+dscrutils:::empty_text(c("{_output:n}.stdout", "{_output:n}.stderr"))
+DSC_87691E20 <- readRDS("{_input}")
+DSC_REPLICATE <- DSC_87691E20$DSC_DEBUG$replicate
+data_subset <- DSC_87691E20$data_subset
+TIC_87691E20 <- proc.time()
+set.seed(DSC_REPLICATE + {DSC_STEP_ID_})
+
+## BEGIN DSC CORE
+suppressPackageStartupMessages(library(edgeR))
+run_limmatrend <- function(L) {{
+  message("limmatrend")
+  session_info <- sessionInfo()
+  timing <- system.time({{
+    dge <- DGEList(L$count, group = L$condt)
+    dge <- calcNormFactors(dge)
+    design <- model.matrix(~L$condt)
+    y <- new("EList")
+    y$E <- edgeR::cpm(dge, log = TRUE, prior.count = 3)
+    fit <- lmFit(y, design = design)
+    fit <- eBayes(fit, trend = TRUE, robust = TRUE)
+    tt <- topTable(fit, n = Inf, adjust.method = "BH")
+  }})
+  hist(tt$P.Value, 50)
+  hist(tt$adj.P.Val, 50)
+  limma::plotMDS(dge, col = as.numeric(as.factor(L$condt)), pch = 19)
+  plotMD(fit)
+  list(session_info = session_info,
+       timing = timing,
+       tt = tt,
+       df = data.frame(pval = tt$P.Value,
+                       padj = tt$adj.P.Val,
+                       row.names = rownames(tt)))
+}}
+output <- run_limmatrend(data_subset)
+## END DSC CORE
+
+saveRDS(list(pval=output$df$pval, timing=output$df$timing, DSC_DEBUG=list(time=as.list(proc.time() - TIC_87691E20), script=dscrutils:::load_script(), replicate=DSC_REPLICATE, session=toString(sessionInfo()))), {_output:r})
+dscrutils:::rm_if_empty(c("{_output:n}.stdout", "{_output:n}.stderr"))
+
+
+""" , workdir = './' , stderr = f"{_output:n}.stderr" , stdout = f"{_output:n}.stdout" ) 
+ # step process
+DSC_STEP_ID_ = 67083057
+
+R ( fr"""## r script UUID: {DSC_STEP_ID_}
+suppressPackageStartupMessages(library(limma))
+dscrutils:::empty_text(c("{_output:n}.stdout", "{_output:n}.stderr"))
+DSC_87691E20 <- readRDS("{_input}")
+DSC_REPLICATE <- DSC_87691E20$DSC_DEBUG$replicate
+data_subset <- DSC_87691E20$data_subset
+TIC_87691E20 <- proc.time()
+set.seed(DSC_REPLICATE + {DSC_STEP_ID_})
+
+## BEGIN DSC CORE
+suppressPackageStartupMessages(library(edgeR))
+run_limmatrend <- function(L) {{
+  message("limmatrend")
+  session_info <- sessionInfo()
+  timing <- system.time({{
+    dge <- DGEList(L$count, group = L$condt)
+    dge <- calcNormFactors(dge)
+    design <- model.matrix(~L$condt)
+    y <- new("EList")
+    y$E <- edgeR::cpm(dge, log = TRUE, prior.count = 3)
+    fit <- lmFit(y, design = design)
+    fit <- eBayes(fit, trend = TRUE, robust = TRUE)
+    tt <- topTable(fit, n = Inf, adjust.method = "BH")
+  }})
+  hist(tt$P.Value, 50)
+  hist(tt$adj.P.Val, 50)
+  limma::plotMDS(dge, col = as.numeric(as.factor(L$condt)), pch = 19)
+  plotMD(fit)
+  list(session_info = session_info,
+       timing = timing,
+       tt = tt,
+       df = data.frame(pval = tt$P.Value,
+                       padj = tt$adj.P.Val,
+                       row.names = rownames(tt)))
+}}
+output <- run_limmatrend(data_subset)
+## END DSC CORE
+
+saveRDS(list(pval=output$df$pval, timing=output$df$timing, DSC_DEBUG=list(time=as.list(proc.time() - TIC_87691E20), script=dscrutils:::load_script(), replicate=DSC_REPLICATE, session=toString(sessionInfo()))), {_output:r})
+dscrutils:::rm_if_empty(c("{_output:n}.stdout", "{_output:n}.stderr"))
+
+
+""" , workdir = './' , stderr = f"{_output:n}.stderr" , stdout = f"{_output:n}.stdout" ) 
+ 

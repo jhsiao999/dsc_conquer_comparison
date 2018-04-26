@@ -33,7 +33,7 @@ make_data_clean: code/prepare_mae.R + R(data_cleaned <- clean_mae(mae=data_raw, 
 make_data_subset_indices: code/generate_subsets.R + R( data_subset_indices <- generate_subsets(data_cleaned, args$groupid, args$keepgroups, sizes, 1, args$seed) )
   args: $config
   data_cleaned: $data_cleaned
-  sizes: 48
+  sizes: 48, 90
   $data_subset_indices: data_subset_indices
 
 # make data subsets
@@ -46,17 +46,29 @@ make_data_subset: code/prepare_mae.R + code/make_subsets.R + R( data_subset <- m
 # apply methods
 apply_wilcoxon: code/apply_Wilcoxon.R + R(output <- run_Wilcoxon(data_subset))
   data_subset: $data_subset
-  $output_wilcoxon: output
+  $pval: output$df$pval
+  $timing: output$df$timing
 
 apply_ttest: code/apply_ttest.R + R(output <- run_ttest(data_subset))
   data_subset: $data_subset
-  $output_ttest: output
+  $pval: output$df$pval
+  $timing: output$df$timing
+
+apply_limmatrend: code/apply_limmatrend.R + R(output <- run_limmatrend(data_subset))
+  data_subset: $data_subset
+  $pval: output$df$pval
+  $timing: output$df$timing
+
+# get output results
+get_nsig: R(library(stats)) + R(nsig <- sum(p.adjust(pval)<.05))
+  pval: $pval
+  $nsig: nsig
 
 DSC:
-  R_libs: MultiAssayExperiment,
+  R_libs: MultiAssayExperiment, iCOBRA, rjson, SummarizedExperiment
   define:
     data: get_config * get_data * make_data_clean * make_data_subset_indices * make_data_subset
-    analyze: apply_wilcoxon, apply_ttest
-#    score: abs_err, sq_err
-  run: data*analyze
+    analyze: apply_wilcoxon, apply_ttest, apply_limmatrend
+    score: get_nsig
+  run: data * analyze * score
   output: example

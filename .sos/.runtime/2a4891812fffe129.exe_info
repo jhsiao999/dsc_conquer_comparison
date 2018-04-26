@@ -1,0 +1,24 @@
+f256c66c79fa269a
+# input
+.sos/.dsc/example.io.mpk	1a46172f18515c42
+# output
+example/example.map.mpk	829d6d63cf6defb3
+example/example.conf.mpk	065bc34684075e6b
+# dependent
+# init context
+_input:=b'gANjc29zLnRhcmdldHMKc29zX3RhcmdldHMKcQApgXEBXXECY3Nvcy50YXJnZXRzCmZpbGVfdGFyZ2V0CnEDWAQAAAAuc29zcQRYBAAAAC5kc2NxBVgOAAAAZXhhbXBsZS5pby5tcGtxBodxB1JxCGFiLg=='
+_output:=b'gANjc29zLnRhcmdldHMKc29zX3RhcmdldHMKcQApgXEBXXECKGNzb3MudGFyZ2V0cwpmaWxlX3RhcmdldApxA1gHAAAAZXhhbXBsZXEEWA8AAABleGFtcGxlLm1hcC5tcGtxBYZxBlJxB2gDaARYEAAAAGV4YW1wbGUuY29uZi5tcGtxCIZxCVJxCmViLg=='
+build_config_db:=b'gANjZHNjLmRzY19kYXRhYmFzZQpidWlsZF9jb25maWdfZGIKcQAu'
+vanilla=False
+# end context
+_input:=b'gANjc29zLnRhcmdldHMKc29zX3RhcmdldHMKcQApgXEBXXECY3Nvcy50YXJnZXRzCmZpbGVfdGFyZ2V0CnEDWAQAAAAuc29zcQRYBAAAAC5kc2NxBVgOAAAAZXhhbXBsZS5pby5tcGtxBodxB1JxCGFiLg=='
+_output:=b'gANjc29zLnRhcmdldHMKc29zX3RhcmdldHMKcQApgXEBXXECKGNzb3MudGFyZ2V0cwpmaWxlX3RhcmdldApxA1gHAAAAZXhhbXBsZXEEWA8AAABleGFtcGxlLm1hcC5tcGtxBYZxBlJxB2gDaARYEAAAAGV4YW1wbGUuY29uZi5tcGtxCIZxCVJxCmViLg=='
+build_config_db:=b'gANjZHNjLmRzY19kYXRhYmFzZQpidWlsZF9jb25maWdfZGIKcQAu'
+vanilla=False
+# step process
+vanilla = False
+
+build_config_db ( str ( _input [ 0 ] ) , str ( _output [ 0 ] ) , str ( _output [ 1 ] ) , vanilla = vanilla , jobs = 4 ) # step process
+vanilla = False
+
+build_config_db ( str ( _input [ 0 ] ) , str ( _output [ 0 ] ) , str ( _output [ 1 ] ) , vanilla = vanilla , jobs = 4 ) 

@@ -2775,7 +2775,7 @@ make_data_clean: code/prepare_mae.R + R(data_cleaned <- clean_mae(mae=data_raw, 
 make_data_subset_indices: code/generate_subsets.R + R( data_subset_indices <- generate_subsets(data_cleaned, args$groupid, args$keepgroups, sizes, 1, args$seed) )
   args: $config
   data_cleaned: $data_cleaned
-  sizes: 48
+  sizes: 48, 90
   $data_subset_indices: data_subset_indices
 
 # make data subsets
@@ -2788,46 +2788,59 @@ make_data_subset: code/prepare_mae.R + code/make_subsets.R + R( data_subset <- m
 # apply methods
 apply_wilcoxon: code/apply_Wilcoxon.R + R(output <- run_Wilcoxon(data_subset))
   data_subset: $data_subset
-  $output_wilcoxon: output
+  $pval: output$df$pval
+  $timing: output$df$timing
 
 apply_ttest: code/apply_ttest.R + R(output <- run_ttest(data_subset))
   data_subset: $data_subset
-  $output_ttest: output
+  $pval: output$df$pval
+  $timing: output$df$timing
+
+apply_limmatrend: code/apply_limmatrend.R + R(output <- run_limmatrend(data_subset))
+  data_subset: $data_subset
+  $pval: output$df$pval
+  $timing: output$df$timing
+
+# get output results
+get_nsig: R(library(stats)) + R(nsig <- sum(p.adjust(pval)<.05))
+  pval: $pval
+  $nsig: nsig
 
 DSC:
-  R_libs: MultiAssayExperiment,
+  R_libs: MultiAssayExperiment, iCOBRA, rjson, SummarizedExperiment
   define:
     data: get_config * get_data * make_data_clean * make_data_subset_indices * make_data_subset
-    analyze: apply_wilcoxon, apply_ttest
-#    score: abs_err, sq_err
-  run: data*analyze
+    analyze: apply_wilcoxon, apply_ttest, apply_limmatrend
+    score: get_nsig
+  run: data * analyze * score
   output: example
 
 </code></pre></div></div><div class="accordion">
 <div class="accodion-section">
-<a class="accordion-section-title" href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon">get_config->get_data->make_data_clean->make_data_subset_indices->make_data_subset->apply_wilcoxon</a>
-<div id=get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon class="accordion-section-content">
+<a class="accordion-section-title" href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon-get_nsig">get_config->get_data->make_data_clean->make_data_subset_indices->make_data_subset->apply_wilcoxon->get_nsig</a>
+<div id=get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon-get_nsig class="accordion-section-content">
 <div class="tabs">
 <ul class="tab-links">
-<li class="active"><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon_r-6a31e483">R (6a31e483)</a></li>
-<li><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon_r-dbc9e3c4">R (dbc9e3c4)</a></li>
-<li><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon_codeprepare_maer-344b94fd">code/prepare_mae.R (344b94fd)</a></li>
-<li><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon_codegenerate_subsetsr-4616340b">code/generate_subsets.R (4616340b)</a></li>
-<li><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon_codeprepare_maercodemake_subsetsr-c8abffc0">code/prepare_mae.R+code/make_subsets.R (c8abffc0)</a></li>
-<li><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon_codeapply_wilcoxonr-a9efb4b3">code/apply_Wilcoxon.R (a9efb4b3)</a></li>
+<li class="active"><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon-get_nsig_r-6a31e483">R (6a31e483)</a></li>
+<li><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon-get_nsig_r-dbc9e3c4">R (dbc9e3c4)</a></li>
+<li><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon-get_nsig_codeprepare_maer-344b94fd">code/prepare_mae.R (344b94fd)</a></li>
+<li><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon-get_nsig_codegenerate_subsetsr-4616340b">code/generate_subsets.R (4616340b)</a></li>
+<li><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon-get_nsig_codeprepare_maercodemake_subsetsr-c8abffc0">code/prepare_mae.R+code/make_subsets.R (c8abffc0)</a></li>
+<li><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon-get_nsig_codeapply_wilcoxonr-a9efb4b3">code/apply_Wilcoxon.R (a9efb4b3)</a></li>
+<li><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon-get_nsig_r-42f7b464">R (42f7b464)</a></li>
 </ul>
 <div class="tab-content">
-<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon_r-6a31e483" class="tab active">
+<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon-get_nsig_r-6a31e483" class="tab active">
 <pre><code class="language-r; line-numbers; left-trim; right-trim;">
 
 args
 </code></pre></div>
-<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon_r-dbc9e3c4" class="tab">
+<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon-get_nsig_r-dbc9e3c4" class="tab">
 <pre><code class="language-r; line-numbers; left-trim; right-trim;">
 
 data_raw = readRDS(args$mae)
 </code></pre></div>
-<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon_codeprepare_maer-344b94fd" class="tab">
+<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon-get_nsig_codeprepare_maer-344b94fd" class="tab">
 <pre><code class="language-r; line-numbers; left-trim; right-trim;">
 library(MultiAssayExperiment)
 impute_dropouts <- function(count, tpm, condt, avetxlength, imputationmethod) {
@@ -2941,7 +2954,7 @@ subset_mae <- function(mae, keep_samples, sz, i, imposed_condition, filt,
 }
 data_cleaned <- clean_mae(mae=data_raw, groupid=args$groupid)
 </code></pre></div>
-<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon_codegenerate_subsetsr-4616340b" class="tab">
+<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon-get_nsig_codegenerate_subsetsr-4616340b" class="tab">
 <pre><code class="language-r; line-numbers; left-trim; right-trim;">
 suppressPackageStartupMessages(library(rjson))
 suppressPackageStartupMessages(library(SummarizedExperiment))
@@ -2999,7 +3012,7 @@ return(list(keep_samples = keep_samples, out_condition = out_condition))
 }
  data_subset_indices <- generate_subsets(data_cleaned, args$groupid, args$keepgroups, sizes, 1, args$seed)
 </code></pre></div>
-<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon_codeprepare_maercodemake_subsetsr-c8abffc0" class="tab">
+<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon-get_nsig_codeprepare_maercodemake_subsetsr-c8abffc0" class="tab">
 <pre><code class="language-r; line-numbers; left-trim; right-trim;">
 library(MultiAssayExperiment)
 suppressPackageStartupMessages(library(rjson))
@@ -3131,7 +3144,7 @@ make_subsets <- function(data_subset_indices, mae, nrep = 1, filt="", impute) {
 }
  data_subset <- make_subsets(data_subset_indices=data_subset_indices, mae=data_cleaned, nrep = 1, filt="", impute=args$impute)
 </code></pre></div>
-<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon_codeapply_wilcoxonr-a9efb4b3" class="tab">
+<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon-get_nsig_codeapply_wilcoxonr-a9efb4b3" class="tab">
 <pre><code class="language-r; line-numbers; left-trim; right-trim;">
 suppressPackageStartupMessages(library(edgeR))
 run_Wilcoxon <- function(L) {
@@ -3154,31 +3167,37 @@ run_Wilcoxon <- function(L) {
 }
 output <- run_Wilcoxon(data_subset)
 </code></pre></div>
+<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_wilcoxon-get_nsig_r-42f7b464" class="tab">
+<pre><code class="language-r; line-numbers; left-trim; right-trim;">
+library(stats)
+nsig <- sum(p.adjust(pval)<.05)
+</code></pre></div>
 </div></div></div></div>
 <div class="accodion-section">
-<a class="accordion-section-title" href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest">get_config->get_data->make_data_clean->make_data_subset_indices->make_data_subset->apply_ttest</a>
-<div id=get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest class="accordion-section-content">
+<a class="accordion-section-title" href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest-get_nsig">get_config->get_data->make_data_clean->make_data_subset_indices->make_data_subset->apply_ttest->get_nsig</a>
+<div id=get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest-get_nsig class="accordion-section-content">
 <div class="tabs">
 <ul class="tab-links">
-<li class="active"><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest_r-6a31e483">R (6a31e483)</a></li>
-<li><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest_r-dbc9e3c4">R (dbc9e3c4)</a></li>
-<li><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest_codeprepare_maer-344b94fd">code/prepare_mae.R (344b94fd)</a></li>
-<li><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest_codegenerate_subsetsr-4616340b">code/generate_subsets.R (4616340b)</a></li>
-<li><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest_codeprepare_maercodemake_subsetsr-c8abffc0">code/prepare_mae.R+code/make_subsets.R (c8abffc0)</a></li>
-<li><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest_codeapply_ttestr-5c6ecb02">code/apply_ttest.R (5c6ecb02)</a></li>
+<li class="active"><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest-get_nsig_r-6a31e483">R (6a31e483)</a></li>
+<li><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest-get_nsig_r-dbc9e3c4">R (dbc9e3c4)</a></li>
+<li><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest-get_nsig_codeprepare_maer-344b94fd">code/prepare_mae.R (344b94fd)</a></li>
+<li><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest-get_nsig_codegenerate_subsetsr-4616340b">code/generate_subsets.R (4616340b)</a></li>
+<li><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest-get_nsig_codeprepare_maercodemake_subsetsr-c8abffc0">code/prepare_mae.R+code/make_subsets.R (c8abffc0)</a></li>
+<li><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest-get_nsig_codeapply_ttestr-5c6ecb02">code/apply_ttest.R (5c6ecb02)</a></li>
+<li><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest-get_nsig_r-42f7b464">R (42f7b464)</a></li>
 </ul>
 <div class="tab-content">
-<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest_r-6a31e483" class="tab active">
+<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest-get_nsig_r-6a31e483" class="tab active">
 <pre><code class="language-r; line-numbers; left-trim; right-trim;">
 
 args
 </code></pre></div>
-<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest_r-dbc9e3c4" class="tab">
+<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest-get_nsig_r-dbc9e3c4" class="tab">
 <pre><code class="language-r; line-numbers; left-trim; right-trim;">
 
 data_raw = readRDS(args$mae)
 </code></pre></div>
-<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest_codeprepare_maer-344b94fd" class="tab">
+<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest-get_nsig_codeprepare_maer-344b94fd" class="tab">
 <pre><code class="language-r; line-numbers; left-trim; right-trim;">
 library(MultiAssayExperiment)
 impute_dropouts <- function(count, tpm, condt, avetxlength, imputationmethod) {
@@ -3292,7 +3311,7 @@ subset_mae <- function(mae, keep_samples, sz, i, imposed_condition, filt,
 }
 data_cleaned <- clean_mae(mae=data_raw, groupid=args$groupid)
 </code></pre></div>
-<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest_codegenerate_subsetsr-4616340b" class="tab">
+<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest-get_nsig_codegenerate_subsetsr-4616340b" class="tab">
 <pre><code class="language-r; line-numbers; left-trim; right-trim;">
 suppressPackageStartupMessages(library(rjson))
 suppressPackageStartupMessages(library(SummarizedExperiment))
@@ -3350,7 +3369,7 @@ return(list(keep_samples = keep_samples, out_condition = out_condition))
 }
  data_subset_indices <- generate_subsets(data_cleaned, args$groupid, args$keepgroups, sizes, 1, args$seed)
 </code></pre></div>
-<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest_codeprepare_maercodemake_subsetsr-c8abffc0" class="tab">
+<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest-get_nsig_codeprepare_maercodemake_subsetsr-c8abffc0" class="tab">
 <pre><code class="language-r; line-numbers; left-trim; right-trim;">
 library(MultiAssayExperiment)
 suppressPackageStartupMessages(library(rjson))
@@ -3482,7 +3501,7 @@ make_subsets <- function(data_subset_indices, mae, nrep = 1, filt="", impute) {
 }
  data_subset <- make_subsets(data_subset_indices=data_subset_indices, mae=data_cleaned, nrep = 1, filt="", impute=args$impute)
 </code></pre></div>
-<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest_codeapply_ttestr-5c6ecb02" class="tab">
+<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest-get_nsig_codeapply_ttestr-5c6ecb02" class="tab">
 <pre><code class="language-r; line-numbers; left-trim; right-trim;">
 suppressPackageStartupMessages(library(edgeR))
 suppressPackageStartupMessages(library(genefilter))
@@ -3506,6 +3525,375 @@ run_ttest <- function(L) {
                        row.names = names(ttest_p)))
 }
 output <- run_ttest(data_subset)
+</code></pre></div>
+<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_ttest-get_nsig_r-42f7b464" class="tab">
+<pre><code class="language-r; line-numbers; left-trim; right-trim;">
+library(stats)
+nsig <- sum(p.adjust(pval)<.05)
+</code></pre></div>
+</div></div></div></div>
+<div class="accodion-section">
+<a class="accordion-section-title" href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_limmatrend-get_nsig">get_config->get_data->make_data_clean->make_data_subset_indices->make_data_subset->apply_limmatrend->get_nsig</a>
+<div id=get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_limmatrend-get_nsig class="accordion-section-content">
+<div class="tabs">
+<ul class="tab-links">
+<li class="active"><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_limmatrend-get_nsig_r-6a31e483">R (6a31e483)</a></li>
+<li><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_limmatrend-get_nsig_r-dbc9e3c4">R (dbc9e3c4)</a></li>
+<li><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_limmatrend-get_nsig_codeprepare_maer-344b94fd">code/prepare_mae.R (344b94fd)</a></li>
+<li><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_limmatrend-get_nsig_codegenerate_subsetsr-4616340b">code/generate_subsets.R (4616340b)</a></li>
+<li><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_limmatrend-get_nsig_codeprepare_maercodemake_subsetsr-c8abffc0">code/prepare_mae.R+code/make_subsets.R (c8abffc0)</a></li>
+<li><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_limmatrend-get_nsig_codeapply_limmatrendr-87691e20">code/apply_limmatrend.R (87691e20)</a></li>
+<li><a href="#get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_limmatrend-get_nsig_r-42f7b464">R (42f7b464)</a></li>
+</ul>
+<div class="tab-content">
+<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_limmatrend-get_nsig_r-6a31e483" class="tab active">
+<pre><code class="language-r; line-numbers; left-trim; right-trim;">
+
+args
+</code></pre></div>
+<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_limmatrend-get_nsig_r-dbc9e3c4" class="tab">
+<pre><code class="language-r; line-numbers; left-trim; right-trim;">
+
+data_raw = readRDS(args$mae)
+</code></pre></div>
+<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_limmatrend-get_nsig_codeprepare_maer-344b94fd" class="tab">
+<pre><code class="language-r; line-numbers; left-trim; right-trim;">
+library(MultiAssayExperiment)
+impute_dropouts <- function(count, tpm, condt, avetxlength, imputationmethod) {
+  if (imputationmethod == "scimpute") {
+    source("scripts/scimpute_dropouts.R")
+    imputed <- scimpute_dropouts(count = count, tpm = tpm, condt = condt,
+                                 avetxlength = avetxlength)
+  } else if (imputationmethod == "drimpute") {
+    source("scripts/drimpute_dropouts.R")
+    imputed <- drimpute_dropouts(count = count, tpm = tpm, condt = condt,
+                                 avetxlength = avetxlength)
+  } else if (imputationmethod == "knnsmooth") {
+    source("scripts/knnsmooth_dropouts.R")
+    imputed <- knnsmooth_dropouts(count = count, tpm = tpm, condt = condt,
+                                  avetxlength = avetxlength)
+  }
+  imputed
+}
+clean_mae <- function(mae, groupid) {
+  library(SummarizedExperiment)
+  mae@sampleMap$assay <- factor(mae@sampleMap$assay)
+  mae <- updateObject(mae)
+  mae2 <- subsetByRow(mae, grep("^ERCC-", unique(unlist(rownames(mae))),
+                                invert = TRUE, value = TRUE))
+  for (m in names(experiments(mae2))) {
+    SummarizedExperiment::assays(experiments(mae2)[[m]])[["TPM"]] <- sweep(SummarizedExperiment::assays(experiments(mae2)[[m]])[["TPM"]],
+            2, colSums(SummarizedExperiment::assays(experiments(mae2)[[m]])[["TPM"]]), "/") * 1e6
+  }
+  if (length(groupid) > 1) {
+    if (paste0(R.Version()$major, ".", R.Version()$minor) < "3.4") {
+      Biobase::pData(mae2)[, paste(groupid, collapse = ".")] <-
+        as.character(interaction(as.data.frame(Biobase::pData(mae2)[, groupid])))
+      groupid <- paste(groupid, collapse = ".")
+    } else {
+      colData(mae2)[, paste(groupid, collapse = ".")] <-
+        as.character(interaction(as.data.frame(colData(mae2)[, groupid])))
+      groupid <- paste(groupid, collapse = ".")
+    }
+  }
+  mae2
+}
+subset_mae <- function(mae, keep_samples, sz, i, imposed_condition, filt,
+                       groupid = NULL, impute = NULL) {
+  mae@sampleMap$assay <- factor(mae@sampleMap$assay)
+  mae <- updateObject(mae)
+  s <- keep_samples[[as.character(sz)]][i, ]
+  count <- assays(experiments(mae)[["gene"]])[["count_lstpm"]][, s]
+  tpm <- assays(experiments(mae)[["gene"]])[["TPM"]][, s]
+  avetxlength = assays(experiments(mae)[["gene"]])[["avetxlength"]]
+  if (!is.null(imposed_condition)) {
+    if (paste0(R.Version()$major, ".", R.Version()$minor) < "3.4") {
+      condt <- structure(imposed_condition[[as.character(sz)]][i, ],
+                         names = rownames(Biobase::pData(mae)[s, ]))
+    } else {
+      condt <- structure(imposed_condition[[as.character(sz)]][i, ],
+                         names = rownames(colData(mae)[s, ]))
+    }
+  } else {
+    if (is.null(groupid)) stop("Must provide groupid")
+    if (paste0(R.Version()$major, ".", R.Version()$minor) < "3.4") {
+      condt <- structure(as.character(Biobase::pData(mae)[s, groupid]),
+                         names = rownames(Biobase::pData(mae)[s, ]))
+    } else {
+      condt <- structure(as.character(colData(mae)[s, groupid]),
+                         names = rownames(colData(mae)[s, ]))
+    }
+  }
+  if (!is.null(impute) && impute != "no" && !is.na(impute)) {
+    imputed <- impute_dropouts(count = count, tpm = tpm, condt = condt,
+                               avetxlength = avetxlength,
+                               imputationmethod = impute)
+    count <- imputed$count
+    tpm <- imputed$tpm
+    condt <- imputed$condt
+    nimp <- imputed$nimp  ## number of imputed values
+  } else {
+    nimp <- NULL
+  }
+  if (filt == "") {
+    count <- count[rowSums(count) > 0, ]
+    tpm <- tpm[rowSums(tpm) > 0, ]
+  } else {
+    filt <- strsplit(filt, "_")[[1]]
+    if (substr(filt[3], nchar(filt[3]), nchar(filt[3])) == "p") {
+      (nbr <- as.numeric(gsub("p", "", filt[3]))/100 * ncol(count))
+    } else {
+      (nbr <- as.numeric(filt[3]))
+    }
+    if (filt[1] == "count") {
+      keep_rows <- rownames(count)[which(rowSums(count > as.numeric(filt[2]))
+                                         > nbr)]
+    } else if (filt[1] == "TPM") {
+      keep_rows <- rownames(tpm)[which(rowSums(tpm > as.numeric(filt[2]))
+                                       > nbr)]
+    } else {
+      stop("First element of filt must be 'count' or 'TPM'.")
+    }
+    count <- count[match(keep_rows, rownames(count)), ]
+    tpm <- tpm[match(keep_rows, rownames(tpm)), ]
+  }
+  stopifnot(all(names(condt) == colnames(count)))
+  stopifnot(all(names(condt) == colnames(tpm)))
+  stopifnot(length(unique(condt)) == 2)
+  summary(colSums(count))
+  summary(rowSums(count))
+  summary(rowSums(tpm))
+  if (!is.null(nimp)) {
+    nimp <- nimp[match(rownames(count), rownames(nimp)), ]
+  }
+  list(count = count, tpm = tpm, condt = condt, nimp = nimp)
+}
+data_cleaned <- clean_mae(mae=data_raw, groupid=args$groupid)
+</code></pre></div>
+<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_limmatrend-get_nsig_codegenerate_subsetsr-4616340b" class="tab">
+<pre><code class="language-r; line-numbers; left-trim; right-trim;">
+suppressPackageStartupMessages(library(rjson))
+suppressPackageStartupMessages(library(SummarizedExperiment))
+suppressPackageStartupMessages(library(survey))
+generate_subsets <- function(mae, groupid, keepgroups, sizes, nreps, seed) {
+  suppressPackageStartupMessages(library(Biobase))
+  suppressPackageStartupMessages(library(MultiAssayExperiment))
+pdata <- colData(mae)
+if (length(groupid) > 1) {
+  pdata[, paste(groupid, collapse = ".")] <-
+    as.character(interaction(as.data.frame(pdata[, groupid])))
+  groupid <- paste(groupid, collapse = ".")
+}
+if (is.null(keepgroups))
+  keepgroups <- levels(factor(pdata[, groupid]))[1:2]
+keepsamples <- rownames(pdata[pdata[, groupid] %in% keepgroups, , drop = FALSE])
+pdata <- droplevels(pdata[match(keepsamples, rownames(pdata)), , drop = FALSE])
+condt <- as.character(pdata[, groupid])
+names(condt) <- rownames(pdata)
+ngroups <- nlevels(factor(condt))
+message("Considering the following ", ngroups, ifelse(ngroups == 1, " group: ", " groups: "),
+        paste(levels(factor(condt)), collapse = " vs "))
+names(sizes) <- sizes
+names(nreps) <- sizes
+set.seed(seed)
+if (length(unique(condt)) == 1) {
+  condt <- condt[sort(sample(1:length(condt), 2 * max(sizes)))]
+} else {
+  condt <- condt[sort(stratsample(as.character(condt),
+                                  structure(rep(max(sizes), 2),
+                                            names = levels(factor(condt)))))]
+}
+keep_tmp <- lapply(sizes, function(sz) {
+  unique(t(sapply(1:nreps[as.character(sz)], function(i) {
+    if (length(unique(condt)) == 1) {
+      tmpn <- names(condt)
+      condt2 <- paste0(condt, ".", sample(rep(c("1", "2"), ceiling(length(condt)/2)))[1:length(condt)])
+      names(condt2) <- tmpn
+      ngroups <- 2
+    } else {
+      condt2 <- condt
+    }
+    smp <- names(condt2)[sort(stratsample(as.character(condt2),
+                                          structure(rep(sz, ngroups),
+                                                    names = levels(factor(condt2)))))]
+    cdt <- condt2[smp]
+    paste(smp, cdt, sep = "___")
+  })))
+})
+keep_samples <- lapply(keep_tmp, function(w) {
+  rbind(apply(w, 2, function(s) sapply(strsplit(s, "___"), .subset, 1)))})
+out_condition <- lapply(keep_tmp, function(w) {
+  rbind(apply(w, 2, function(s) sapply(strsplit(s, "___"), .subset, 2)))})
+return(list(keep_samples = keep_samples, out_condition = out_condition))
+}
+ data_subset_indices <- generate_subsets(data_cleaned, args$groupid, args$keepgroups, sizes, 1, args$seed)
+</code></pre></div>
+<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_limmatrend-get_nsig_codeprepare_maercodemake_subsetsr-c8abffc0" class="tab">
+<pre><code class="language-r; line-numbers; left-trim; right-trim;">
+library(MultiAssayExperiment)
+suppressPackageStartupMessages(library(rjson))
+suppressPackageStartupMessages(library(tximport))
+suppressPackageStartupMessages(library(survey))
+suppressPackageStartupMessages(library(tidyr))
+suppressPackageStartupMessages(library(SummarizedExperiment))
+impute_dropouts <- function(count, tpm, condt, avetxlength, imputationmethod) {
+  if (imputationmethod == "scimpute") {
+    source("scripts/scimpute_dropouts.R")
+    imputed <- scimpute_dropouts(count = count, tpm = tpm, condt = condt,
+                                 avetxlength = avetxlength)
+  } else if (imputationmethod == "drimpute") {
+    source("scripts/drimpute_dropouts.R")
+    imputed <- drimpute_dropouts(count = count, tpm = tpm, condt = condt,
+                                 avetxlength = avetxlength)
+  } else if (imputationmethod == "knnsmooth") {
+    source("scripts/knnsmooth_dropouts.R")
+    imputed <- knnsmooth_dropouts(count = count, tpm = tpm, condt = condt,
+                                  avetxlength = avetxlength)
+  }
+  imputed
+}
+clean_mae <- function(mae, groupid) {
+  library(SummarizedExperiment)
+  mae@sampleMap$assay <- factor(mae@sampleMap$assay)
+  mae <- updateObject(mae)
+  mae2 <- subsetByRow(mae, grep("^ERCC-", unique(unlist(rownames(mae))),
+                                invert = TRUE, value = TRUE))
+  for (m in names(experiments(mae2))) {
+    SummarizedExperiment::assays(experiments(mae2)[[m]])[["TPM"]] <- sweep(SummarizedExperiment::assays(experiments(mae2)[[m]])[["TPM"]],
+            2, colSums(SummarizedExperiment::assays(experiments(mae2)[[m]])[["TPM"]]), "/") * 1e6
+  }
+  if (length(groupid) > 1) {
+    if (paste0(R.Version()$major, ".", R.Version()$minor) < "3.4") {
+      Biobase::pData(mae2)[, paste(groupid, collapse = ".")] <-
+        as.character(interaction(as.data.frame(Biobase::pData(mae2)[, groupid])))
+      groupid <- paste(groupid, collapse = ".")
+    } else {
+      colData(mae2)[, paste(groupid, collapse = ".")] <-
+        as.character(interaction(as.data.frame(colData(mae2)[, groupid])))
+      groupid <- paste(groupid, collapse = ".")
+    }
+  }
+  mae2
+}
+subset_mae <- function(mae, keep_samples, sz, i, imposed_condition, filt,
+                       groupid = NULL, impute = NULL) {
+  mae@sampleMap$assay <- factor(mae@sampleMap$assay)
+  mae <- updateObject(mae)
+  s <- keep_samples[[as.character(sz)]][i, ]
+  count <- assays(experiments(mae)[["gene"]])[["count_lstpm"]][, s]
+  tpm <- assays(experiments(mae)[["gene"]])[["TPM"]][, s]
+  avetxlength = assays(experiments(mae)[["gene"]])[["avetxlength"]]
+  if (!is.null(imposed_condition)) {
+    if (paste0(R.Version()$major, ".", R.Version()$minor) < "3.4") {
+      condt <- structure(imposed_condition[[as.character(sz)]][i, ],
+                         names = rownames(Biobase::pData(mae)[s, ]))
+    } else {
+      condt <- structure(imposed_condition[[as.character(sz)]][i, ],
+                         names = rownames(colData(mae)[s, ]))
+    }
+  } else {
+    if (is.null(groupid)) stop("Must provide groupid")
+    if (paste0(R.Version()$major, ".", R.Version()$minor) < "3.4") {
+      condt <- structure(as.character(Biobase::pData(mae)[s, groupid]),
+                         names = rownames(Biobase::pData(mae)[s, ]))
+    } else {
+      condt <- structure(as.character(colData(mae)[s, groupid]),
+                         names = rownames(colData(mae)[s, ]))
+    }
+  }
+  if (!is.null(impute) && impute != "no" && !is.na(impute)) {
+    imputed <- impute_dropouts(count = count, tpm = tpm, condt = condt,
+                               avetxlength = avetxlength,
+                               imputationmethod = impute)
+    count <- imputed$count
+    tpm <- imputed$tpm
+    condt <- imputed$condt
+    nimp <- imputed$nimp  ## number of imputed values
+  } else {
+    nimp <- NULL
+  }
+  if (filt == "") {
+    count <- count[rowSums(count) > 0, ]
+    tpm <- tpm[rowSums(tpm) > 0, ]
+  } else {
+    filt <- strsplit(filt, "_")[[1]]
+    if (substr(filt[3], nchar(filt[3]), nchar(filt[3])) == "p") {
+      (nbr <- as.numeric(gsub("p", "", filt[3]))/100 * ncol(count))
+    } else {
+      (nbr <- as.numeric(filt[3]))
+    }
+    if (filt[1] == "count") {
+      keep_rows <- rownames(count)[which(rowSums(count > as.numeric(filt[2]))
+                                         > nbr)]
+    } else if (filt[1] == "TPM") {
+      keep_rows <- rownames(tpm)[which(rowSums(tpm > as.numeric(filt[2]))
+                                       > nbr)]
+    } else {
+      stop("First element of filt must be 'count' or 'TPM'.")
+    }
+    count <- count[match(keep_rows, rownames(count)), ]
+    tpm <- tpm[match(keep_rows, rownames(tpm)), ]
+  }
+  stopifnot(all(names(condt) == colnames(count)))
+  stopifnot(all(names(condt) == colnames(tpm)))
+  stopifnot(length(unique(condt)) == 2)
+  summary(colSums(count))
+  summary(rowSums(count))
+  summary(rowSums(tpm))
+  if (!is.null(nimp)) {
+    nimp <- nimp[match(rownames(count), rownames(nimp)), ]
+  }
+  list(count = count, tpm = tpm, condt = condt, nimp = nimp)
+}
+suppressPackageStartupMessages(library(reshape2))
+suppressPackageStartupMessages(library(GEOquery))
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(Biobase))
+suppressPackageStartupMessages(library(MultiAssayExperiment))
+make_subsets <- function(data_subset_indices, mae, nrep = 1, filt="", impute) {
+  keep_samples <- data_subset_indices$keep_samples
+  imposed_condition <- data_subset_indices$out_condition
+  sz <- as.numeric(names(keep_samples)[1])
+  L <- subset_mae(mae = mae, keep_samples = keep_samples, sz = sz, i = nrep,
+                  imposed_condition = imposed_condition, filt = filt, impute = impute)
+  return(L)
+}
+ data_subset <- make_subsets(data_subset_indices=data_subset_indices, mae=data_cleaned, nrep = 1, filt="", impute=args$impute)
+</code></pre></div>
+<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_limmatrend-get_nsig_codeapply_limmatrendr-87691e20" class="tab">
+<pre><code class="language-r; line-numbers; left-trim; right-trim;">
+suppressPackageStartupMessages(library(limma))
+suppressPackageStartupMessages(library(edgeR))
+run_limmatrend <- function(L) {
+  message("limmatrend")
+  session_info <- sessionInfo()
+  timing <- system.time({
+    dge <- DGEList(L$count, group = L$condt)
+    dge <- calcNormFactors(dge)
+    design <- model.matrix(~L$condt)
+    y <- new("EList")
+    y$E <- edgeR::cpm(dge, log = TRUE, prior.count = 3)
+    fit <- lmFit(y, design = design)
+    fit <- eBayes(fit, trend = TRUE, robust = TRUE)
+    tt <- topTable(fit, n = Inf, adjust.method = "BH")
+  })
+  hist(tt$P.Value, 50)
+  hist(tt$adj.P.Val, 50)
+  limma::plotMDS(dge, col = as.numeric(as.factor(L$condt)), pch = 19)
+  plotMD(fit)
+  list(session_info = session_info,
+       timing = timing,
+       tt = tt,
+       df = data.frame(pval = tt$P.Value,
+                       padj = tt$adj.P.Val,
+                       row.names = rownames(tt)))
+}
+output <- run_limmatrend(data_subset)
+</code></pre></div>
+<div id="get_config-get_data-make_data_clean-make_data_subset_indices-make_data_subset-apply_limmatrend-get_nsig_r-42f7b464" class="tab">
+<pre><code class="language-r; line-numbers; left-trim; right-trim;">
+library(stats)
+nsig <- sum(p.adjust(pval)<.05)
 </code></pre></div>
 </div></div></div></div>
 

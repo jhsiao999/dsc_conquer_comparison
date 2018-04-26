@@ -1,0 +1,176 @@
+8ad6db03967be173
+# input
+example/get_config/get_config_1.rds	718d4ec634fe21f7
+example/make_data_clean/get_config_1_get_data_1_make_data_clean_1.rds	4a1c89311e58157c
+# output
+example/make_data_subset_indices/get_config_1_get_data_1_make_data_clean_1_make_data_subset_indices_1.rds	0a1b8f9e1a9310a9
+# dependent
+# init context
+DSC_STEP_ID_=35941609
+_input:=b'gANjc29zLnRhcmdldHMKc29zX3RhcmdldHMKcQApgXEBXXECKGNzb3MudGFyZ2V0cwpmaWxlX3RhcmdldApxA1gHAAAAZXhhbXBsZXEEWAoAAABnZXRfY29uZmlncQVYEAAAAGdldF9jb25maWdfMS5yZHNxBodxB1JxCGgDaARYDwAAAG1ha2VfZGF0YV9jbGVhbnEJWC0AAABnZXRfY29uZmlnXzFfZ2V0X2RhdGFfMV9tYWtlX2RhdGFfY2xlYW5fMS5yZHNxCodxC1JxDGViLg=='
+_output:=b'gANjc29zLnRhcmdldHMKc29zX3RhcmdldHMKcQApgXEBXXECY3Nvcy50YXJnZXRzCmZpbGVfdGFyZ2V0CnEDWAcAAABleGFtcGxlcQRYGAAAAG1ha2VfZGF0YV9zdWJzZXRfaW5kaWNlc3EFWEgAAABnZXRfY29uZmlnXzFfZ2V0X2RhdGFfMV9tYWtlX2RhdGFfY2xlYW5fMV9tYWtlX2RhdGFfc3Vic2V0X2luZGljZXNfMS5yZHNxBodxB1JxCGFiLg=='
+_sizes=48
+# end context
+DSC_STEP_ID_=35941609
+_input:=b'gANjc29zLnRhcmdldHMKc29zX3RhcmdldHMKcQApgXEBXXECKGNzb3MudGFyZ2V0cwpmaWxlX3RhcmdldApxA1gHAAAAZXhhbXBsZXEEWAoAAABnZXRfY29uZmlncQVYEAAAAGdldF9jb25maWdfMS5yZHNxBodxB1JxCGgDaARYDwAAAG1ha2VfZGF0YV9jbGVhbnEJWC0AAABnZXRfY29uZmlnXzFfZ2V0X2RhdGFfMV9tYWtlX2RhdGFfY2xlYW5fMS5yZHNxCodxC1JxDGViLg=='
+_output:=b'gANjc29zLnRhcmdldHMKc29zX3RhcmdldHMKcQApgXEBXXECY3Nvcy50YXJnZXRzCmZpbGVfdGFyZ2V0CnEDWAcAAABleGFtcGxlcQRYGAAAAG1ha2VfZGF0YV9zdWJzZXRfaW5kaWNlc3EFWEgAAABnZXRfY29uZmlnXzFfZ2V0X2RhdGFfMV9tYWtlX2RhdGFfY2xlYW5fMV9tYWtlX2RhdGFfc3Vic2V0X2luZGljZXNfMS5yZHNxBodxB1JxCGFiLg=='
+_sizes=48
+# step process
+DSC_STEP_ID_ = 35941609
+_sizes = 48
+
+R ( fr"""## r script UUID: {DSC_STEP_ID_}
+suppressPackageStartupMessages(library(rjson))
+suppressPackageStartupMessages(library(SummarizedExperiment))
+suppressPackageStartupMessages(library(survey))
+dscrutils:::empty_text(c("{_output:n}.stdout", "{_output:n}.stderr"))
+DSC_4616340B <- list()
+input.files <- c({_input:r,})
+for (i in 1:length(input.files)) DSC_4616340B <- dscrutils:::merge_lists(DSC_4616340B, readRDS(input.files[i]))
+DSC_REPLICATE <- DSC_4616340B$DSC_DEBUG$replicate
+args <- DSC_4616340B$config
+data_cleaned <- DSC_4616340B$data_cleaned
+sizes <- {_sizes}
+TIC_4616340B <- proc.time()
+set.seed(DSC_REPLICATE + {DSC_STEP_ID_})
+
+## BEGIN DSC CORE
+generate_subsets <- function(mae, groupid, keepgroups, sizes, nreps, seed) {{
+  suppressPackageStartupMessages(library(Biobase))
+  suppressPackageStartupMessages(library(MultiAssayExperiment))
+pdata <- colData(mae)
+if (length(groupid) > 1) {{
+  pdata[, paste(groupid, collapse = ".")] <-
+    as.character(interaction(as.data.frame(pdata[, groupid])))
+  groupid <- paste(groupid, collapse = ".")
+}}
+if (is.null(keepgroups))
+  keepgroups <- levels(factor(pdata[, groupid]))[1:2]
+keepsamples <- rownames(pdata[pdata[, groupid] %in% keepgroups, , drop = FALSE])
+pdata <- droplevels(pdata[match(keepsamples, rownames(pdata)), , drop = FALSE])
+condt <- as.character(pdata[, groupid])
+names(condt) <- rownames(pdata)
+ngroups <- nlevels(factor(condt))
+message("Considering the following ", ngroups, ifelse(ngroups == 1, " group: ", " groups: "),
+        paste(levels(factor(condt)), collapse = " vs "))
+names(sizes) <- sizes
+names(nreps) <- sizes
+set.seed(seed)
+if (length(unique(condt)) == 1) {{
+  condt <- condt[sort(sample(1:length(condt), 2 * max(sizes)))]
+}} else {{
+  condt <- condt[sort(stratsample(as.character(condt),
+                                  structure(rep(max(sizes), 2),
+                                            names = levels(factor(condt)))))]
+}}
+keep_tmp <- lapply(sizes, function(sz) {{
+  unique(t(sapply(1:nreps[as.character(sz)], function(i) {{
+    if (length(unique(condt)) == 1) {{
+      tmpn <- names(condt)
+      condt2 <- paste0(condt, ".", sample(rep(c("1", "2"), ceiling(length(condt)/2)))[1:length(condt)])
+      names(condt2) <- tmpn
+      ngroups <- 2
+    }} else {{
+      condt2 <- condt
+    }}
+    smp <- names(condt2)[sort(stratsample(as.character(condt2),
+                                          structure(rep(sz, ngroups),
+                                                    names = levels(factor(condt2)))))]
+    cdt <- condt2[smp]
+    paste(smp, cdt, sep = "___")
+  }})))
+}})
+keep_samples <- lapply(keep_tmp, function(w) {{
+  rbind(apply(w, 2, function(s) sapply(strsplit(s, "___"), .subset, 1)))}})
+out_condition <- lapply(keep_tmp, function(w) {{
+  rbind(apply(w, 2, function(s) sapply(strsplit(s, "___"), .subset, 2)))}})
+return(list(keep_samples = keep_samples, out_condition = out_condition))
+}}
+ data_subset_indices <- generate_subsets(data_cleaned, args$groupid, args$keepgroups, sizes, 1, args$seed)
+## END DSC CORE
+
+saveRDS(list(data_subset_indices=data_subset_indices, DSC_DEBUG=list(time=as.list(proc.time() - TIC_4616340B), script=dscrutils:::load_script(), replicate=DSC_REPLICATE, session=toString(sessionInfo()))), {_output:r})
+dscrutils:::rm_if_empty(c("{_output:n}.stdout", "{_output:n}.stderr"))
+
+
+""" , workdir = './' , stderr = f"{_output:n}.stderr" , stdout = f"{_output:n}.stdout" ) 
+ # step process
+DSC_STEP_ID_ = 35941609
+_sizes = 48
+
+R ( fr"""## r script UUID: {DSC_STEP_ID_}
+suppressPackageStartupMessages(library(rjson))
+suppressPackageStartupMessages(library(SummarizedExperiment))
+suppressPackageStartupMessages(library(survey))
+dscrutils:::empty_text(c("{_output:n}.stdout", "{_output:n}.stderr"))
+DSC_4616340B <- list()
+input.files <- c({_input:r,})
+for (i in 1:length(input.files)) DSC_4616340B <- dscrutils:::merge_lists(DSC_4616340B, readRDS(input.files[i]))
+DSC_REPLICATE <- DSC_4616340B$DSC_DEBUG$replicate
+args <- DSC_4616340B$config
+data_cleaned <- DSC_4616340B$data_cleaned
+sizes <- {_sizes}
+TIC_4616340B <- proc.time()
+set.seed(DSC_REPLICATE + {DSC_STEP_ID_})
+
+## BEGIN DSC CORE
+generate_subsets <- function(mae, groupid, keepgroups, sizes, nreps, seed) {{
+  suppressPackageStartupMessages(library(Biobase))
+  suppressPackageStartupMessages(library(MultiAssayExperiment))
+pdata <- colData(mae)
+if (length(groupid) > 1) {{
+  pdata[, paste(groupid, collapse = ".")] <-
+    as.character(interaction(as.data.frame(pdata[, groupid])))
+  groupid <- paste(groupid, collapse = ".")
+}}
+if (is.null(keepgroups))
+  keepgroups <- levels(factor(pdata[, groupid]))[1:2]
+keepsamples <- rownames(pdata[pdata[, groupid] %in% keepgroups, , drop = FALSE])
+pdata <- droplevels(pdata[match(keepsamples, rownames(pdata)), , drop = FALSE])
+condt <- as.character(pdata[, groupid])
+names(condt) <- rownames(pdata)
+ngroups <- nlevels(factor(condt))
+message("Considering the following ", ngroups, ifelse(ngroups == 1, " group: ", " groups: "),
+        paste(levels(factor(condt)), collapse = " vs "))
+names(sizes) <- sizes
+names(nreps) <- sizes
+set.seed(seed)
+if (length(unique(condt)) == 1) {{
+  condt <- condt[sort(sample(1:length(condt), 2 * max(sizes)))]
+}} else {{
+  condt <- condt[sort(stratsample(as.character(condt),
+                                  structure(rep(max(sizes), 2),
+                                            names = levels(factor(condt)))))]
+}}
+keep_tmp <- lapply(sizes, function(sz) {{
+  unique(t(sapply(1:nreps[as.character(sz)], function(i) {{
+    if (length(unique(condt)) == 1) {{
+      tmpn <- names(condt)
+      condt2 <- paste0(condt, ".", sample(rep(c("1", "2"), ceiling(length(condt)/2)))[1:length(condt)])
+      names(condt2) <- tmpn
+      ngroups <- 2
+    }} else {{
+      condt2 <- condt
+    }}
+    smp <- names(condt2)[sort(stratsample(as.character(condt2),
+                                          structure(rep(sz, ngroups),
+                                                    names = levels(factor(condt2)))))]
+    cdt <- condt2[smp]
+    paste(smp, cdt, sep = "___")
+  }})))
+}})
+keep_samples <- lapply(keep_tmp, function(w) {{
+  rbind(apply(w, 2, function(s) sapply(strsplit(s, "___"), .subset, 1)))}})
+out_condition <- lapply(keep_tmp, function(w) {{
+  rbind(apply(w, 2, function(s) sapply(strsplit(s, "___"), .subset, 2)))}})
+return(list(keep_samples = keep_samples, out_condition = out_condition))
+}}
+ data_subset_indices <- generate_subsets(data_cleaned, args$groupid, args$keepgroups, sizes, 1, args$seed)
+## END DSC CORE
+
+saveRDS(list(data_subset_indices=data_subset_indices, DSC_DEBUG=list(time=as.list(proc.time() - TIC_4616340B), script=dscrutils:::load_script(), replicate=DSC_REPLICATE, session=toString(sessionInfo()))), {_output:r})
+dscrutils:::rm_if_empty(c("{_output:n}.stdout", "{_output:n}.stderr"))
+
+
+""" , workdir = './' , stderr = f"{_output:n}.stderr" , stdout = f"{_output:n}.stdout" ) 
+ 

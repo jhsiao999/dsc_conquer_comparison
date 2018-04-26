@@ -1,0 +1,116 @@
+d79c399618945d0f
+# input
+# output
+example/get_config/get_config_1.rds	718d4ec634fe21f7
+# dependent
+# init context
+DSC_STEP_ID_=2454193
+_DSC_REPLICATE=1
+_figfilebase="'figures/diffexpression/GSE48968-GPL13112'"
+_groupid="'source_name_ch1'"
+_impute='NULL'
+_keepgroups="list('BMDC (1h LPS Stimulation)','BMDC (4h LPS Stimulation)')"
+_mae="'data/GSE48968-GPL13112.rds'"
+_nreps='c(1,5,5,5)'
+_output:=b'gANjc29zLnRhcmdldHMKc29zX3RhcmdldHMKcQApgXEBXXECY3Nvcy50YXJnZXRzCmZpbGVfdGFyZ2V0CnEDWAcAAABleGFtcGxlcQRYCgAAAGdldF9jb25maWdxBVgQAAAAZ2V0X2NvbmZpZ18xLnJkc3EGh3EHUnEIYWIu'
+_resfilebase="'results/GSE48968-GPL13112'"
+_seed=42
+_sizes='c(96,48,24,12)'
+_subfile="'subsets/GSE48968-GPL13112_subsets.rds'"
+# end context
+DSC_STEP_ID_=2454193
+_DSC_REPLICATE=1
+_figfilebase="'figures/diffexpression/GSE48968-GPL13112'"
+_groupid="'source_name_ch1'"
+_impute='NULL'
+_keepgroups="list('BMDC (1h LPS Stimulation)','BMDC (4h LPS Stimulation)')"
+_mae="'data/GSE48968-GPL13112.rds'"
+_nreps='c(1,5,5,5)'
+_output:=b'gANjc29zLnRhcmdldHMKc29zX3RhcmdldHMKcQApgXEBXXECY3Nvcy50YXJnZXRzCmZpbGVfdGFyZ2V0CnEDWAcAAABleGFtcGxlcQRYCgAAAGdldF9jb25maWdxBVgQAAAAZ2V0X2NvbmZpZ18xLnJkc3EGh3EHUnEIYWIu'
+_resfilebase="'results/GSE48968-GPL13112'"
+_seed=42
+_sizes='c(96,48,24,12)'
+_subfile="'subsets/GSE48968-GPL13112_subsets.rds'"
+# step process
+DSC_STEP_ID_ = 2454193
+_DSC_REPLICATE = 1
+_figfilebase = "'figures/diffexpression/GSE48968-GPL13112'"
+_groupid = "'source_name_ch1'"
+_impute = 'NULL'
+_keepgroups = "list('BMDC (1h LPS Stimulation)','BMDC (4h LPS Stimulation)')"
+_mae = "'data/GSE48968-GPL13112.rds'"
+_nreps = 'c(1,5,5,5)'
+_resfilebase = "'results/GSE48968-GPL13112'"
+_seed = 42
+_sizes = 'c(96,48,24,12)'
+_subfile = "'subsets/GSE48968-GPL13112_subsets.rds'"
+
+R ( fr"""## r script UUID: {DSC_STEP_ID_}
+
+dscrutils:::empty_text(c("{_output:n}.stdout", "{_output:n}.stderr"))
+args <- list()
+args$figfilebase <- {_figfilebase}
+args$groupid <- {_groupid}
+args$impute <- {_impute}
+args$keepgroups <- {_keepgroups}
+args$mae <- {_mae}
+args$nreps <- {_nreps}
+args$resfilebase <- {_resfilebase}
+args$seed <- {_seed}
+args$sizes <- {_sizes}
+args$subfile <- {_subfile}
+DSC_REPLICATE <- {_DSC_REPLICATE}
+TIC_6A31E483 <- proc.time()
+set.seed(DSC_REPLICATE + {DSC_STEP_ID_})
+
+## BEGIN DSC CORE
+args
+## END DSC CORE
+
+saveRDS(list(config=args, DSC_DEBUG=list(time=as.list(proc.time() - TIC_6A31E483), script=dscrutils:::load_script(), replicate=DSC_REPLICATE, session=toString(sessionInfo()))), {_output:r})
+dscrutils:::rm_if_empty(c("{_output:n}.stdout", "{_output:n}.stderr"))
+
+
+""" , workdir = './' , stderr = f"{_output:n}.stderr" , stdout = f"{_output:n}.stdout" ) 
+ # step process
+DSC_STEP_ID_ = 2454193
+_DSC_REPLICATE = 1
+_figfilebase = "'figures/diffexpression/GSE48968-GPL13112'"
+_groupid = "'source_name_ch1'"
+_impute = 'NULL'
+_keepgroups = "list('BMDC (1h LPS Stimulation)','BMDC (4h LPS Stimulation)')"
+_mae = "'data/GSE48968-GPL13112.rds'"
+_nreps = 'c(1,5,5,5)'
+_resfilebase = "'results/GSE48968-GPL13112'"
+_seed = 42
+_sizes = 'c(96,48,24,12)'
+_subfile = "'subsets/GSE48968-GPL13112_subsets.rds'"
+
+R ( fr"""## r script UUID: {DSC_STEP_ID_}
+
+dscrutils:::empty_text(c("{_output:n}.stdout", "{_output:n}.stderr"))
+args <- list()
+args$figfilebase <- {_figfilebase}
+args$groupid <- {_groupid}
+args$impute <- {_impute}
+args$keepgroups <- {_keepgroups}
+args$mae <- {_mae}
+args$nreps <- {_nreps}
+args$resfilebase <- {_resfilebase}
+args$seed <- {_seed}
+args$sizes <- {_sizes}
+args$subfile <- {_subfile}
+DSC_REPLICATE <- {_DSC_REPLICATE}
+TIC_6A31E483 <- proc.time()
+set.seed(DSC_REPLICATE + {DSC_STEP_ID_})
+
+## BEGIN DSC CORE
+args
+## END DSC CORE
+
+saveRDS(list(config=args, DSC_DEBUG=list(time=as.list(proc.time() - TIC_6A31E483), script=dscrutils:::load_script(), replicate=DSC_REPLICATE, session=toString(sessionInfo()))), {_output:r})
+dscrutils:::rm_if_empty(c("{_output:n}.stdout", "{_output:n}.stderr"))
+
+
+""" , workdir = './' , stderr = f"{_output:n}.stderr" , stdout = f"{_output:n}.stdout" ) 
+ 
