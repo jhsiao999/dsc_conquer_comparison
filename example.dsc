@@ -2,13 +2,15 @@
 
 # This is a first example of reproducing conquer comparison code
 
-# set configuration parameters
-GSE48968_GPL13112: R()
+# get data and set configurations
+GSE48968_GPL13112: Shell(mkdir -p $download_to;
+                         if [ ! -f $download_to/$name.rds ]; then
+                            curl -L $base_url/$name.rds -o $download_to/$name.rds;
+                         fi;
+                         ln -sf `realpath $download_to/$name.rds` $mae)
+   name: GSE48968-GPL13112
    base_url: http://imlspenticton.uzh.ch/robinson_lab/conquer/data-mae
-   mae: data/GSE48968-GPL13112.rds
-   # subfile: subsets/GSE48968-GPL13112_subsets.rds
-   # resfilebase: results/GSE48968-GPL13112
-   # figfilebase: figures/diffexpression/GSE48968-GPL13112
+   download_to: data
    groupid: source_name_ch1
    keepgroups: (BMDC (1h LPS Stimulation), BMDC (4h LPS Stimulation))
    seed: 42 # not necessary in DSC
@@ -17,19 +19,13 @@ GSE48968_GPL13112: R()
    impute: NULL
    @ALIAS: args = List()
    $config: args
-
-# import data
-# FIXME: will soon to be executed directly from Shell
-# that downloads from `args$base_url`
-get_data: R(data_raw = readRDS(args$mae))
-  args: $config
-  $data_raw: data_raw
+   $mae: file(rds)
 
 # clean data
 make_data_clean: code/prepare_mae.R + \
                  R(data_cleaned <- clean_mae(mae=data_raw, groupid=args$groupid))
   args: $config
-  data_raw: $data_raw
+  data_raw: $mae
   $data_cleaned: data_cleaned
 
 # make data_subset indices
@@ -73,9 +69,9 @@ get_nsig: R(library(stats)) + R(nsig <- sum(p.adjust(pval)<.05))
 
 DSC:
   define:
-    get_config: GSE48968_GPL13112 
-    data: get_config * get_data * make_data_clean * make_data_subset_indices * make_data_subset
+    setup: GSE48968_GPL13112 
+    data: make_data_clean * make_data_subset_indices * make_data_subset
     analyze: apply_wilcoxon, apply_ttest, apply_limmatrend
     score: get_nsig
-  run: data * analyze * score
+  run: setup * data * analyze * score
   R_libs: MultiAssayExperiment, iCOBRA, rjson, SummarizedExperiment, Biobase, survey, GEOquery
